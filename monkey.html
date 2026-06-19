@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لعبة القرد والموز</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    background:#e8f5e9;
+    margin:20px;
+}
+textarea{
+    width:80%;
+    height:100px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+button{
+    padding:10px 20px;
+    margin:5px;
+    font-size:18px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    background-color: #2e7d32;
+    color: white;
+    font-weight: bold;
+}
+button:hover {
+    background-color: #1b5e20;
+}
+#game{
+    display:none;
+}
+#banana{
+    font-size:40px;
+    margin:20px;
+}
+#word{
+    font-size:32px;
+    font-weight:bold;
+    color:#2e7d32;
+}
+#monkey{
+    font-size:70px;
+    transition:0.3s;
+    display: inline-block;
+}
+#message{
+    font-size:20px;
+    font-weight:bold;
+    color:#d32f2f;
+}
+.btn-correct { background-color: #4caf50; }
+.btn-wrong { background-color: #f44336; }
+.btn-correct:hover { background-color: #388e3c; }
+.btn-wrong:hover { background-color: #d32f2f; }
+</style>
+</head>
+<body>
+
+<h1>🐵 لعبة القرد والموز 🍌</h1>
+
+<div id="setup">
+    <p>أدخلي كلمة في كل سطر:</p>
+    <textarea id="wordsInput" placeholder="موز&#10;بيت&#10;قلم"></textarea>
+    <br><br>
+    <button onclick="startGame()">ابدأ اللعبة</button>
+</div>
+
+<div id="game">
+    <div id="banana">🍌</div>
+    <div id="word"></div>
+
+    <div id="monkey">🐵</div>
+
+    <h3>النقاط: <span id="score">0</span></h3>
+
+    <button class="btn-correct" onclick="correct()">✔ صح</button>
+    <button class="btn-wrong" onclick="wrong()">✖ خطأ</button>
+
+    <p id="message"></p>
+</div>
+
+<audio id="yummySound" src="https://assets.mixkit.co/active_storage/sfx/2252/2252-400.mp3" preload="auto"></audio>
+
+<script>
+let words = [];
+let current = 0;
+let score = 0;
+
+// استدعاء عنصر الصوت
+const yummySound = document.getElementById("yummySound");
+
+function startGame(){
+    words = document.getElementById("wordsInput")
+            .value
+            .split("\n")
+            .map(w=>w.trim())
+            .filter(w=>w);
+
+    if(words.length===0){
+        alert("أدخلي كلمات أولاً");
+        return;
+    }
+
+    document.getElementById("setup").style.display="none";
+    document.getElementById("game").style.display="block";
+
+    showWord();
+}
+
+function showWord(){
+    if(current >= words.length){
+        document.getElementById("word").innerHTML="🏆 أحسنت!";
+        document.getElementById("banana").style.display="none";
+        document.getElementById("message").style.color="#2e7d32";
+        document.getElementById("message").innerHTML= "القرد أكل كل الموز! 🍌🐵";
+        return;
+    }
+
+    document.getElementById("word").innerHTML = words[current];
+}
+
+// دالة عند الإجابة بصحيح
+function correct() {
+    score++;
+    document.getElementById("score").innerHTML = score;
+    document.getElementById("message").innerHTML = "";
+
+    // تشغيل صوت الأكل (يمي يمي)
+    yummySound.currentTime = 0; 
+    yummySound.play().catch(error => console.log("تحتاج للضغط على الشاشة أولاً لتفعيل الصوت."));
+    
+    // تأثير حركة القرد يقفز للأعلى باتجاه الموزة
+    let monkey = document.getElementById("monkey");
+    monkey.style.transform = "translateY(-30px) scale(1.1)";
+    
+    setTimeout(() => {
+        monkey.style.transform = "translateY(0px) scale(1)";
+        current++;
+        showWord();
+    }, 400);
+}
+
+// دالة عند الإجابة بخطأ
+function wrong() {
+    document.getElementById("message").style.color = "#d32f2f";
+    document.getElementById("message").innerHTML = "حاول مرة أخرى! ❌";
+    
+    // تأثير اهتزاز القرد عند الخطأ
+    let monkey = document.getElementById("monkey");
+    monkey.style.transform = "translateX(15px)";
+    
+    setTimeout(() => { monkey.style.transform = "translateX(-15px)"; }, 100);
+    setTimeout(() => { 
+        monkey.style.transform = "translateX(0px)"; 
+        document.getElementById("message").innerHTML = "";
+        current++; 
+        showWord();
+    }, 400);
+}
+</script>
+</body>
+</html>
